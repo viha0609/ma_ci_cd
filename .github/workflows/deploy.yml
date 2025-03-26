@@ -22,11 +22,15 @@ jobs:
           ls -lah
           cd connecting-mysql || cd $GITHUB_WORKSPACE
           ls -lah
-
+          
+      - name: Set up Java 23
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '23'
+          
       - name: Build JAR file with Correct Directory
-        run: |
-          cd connecting-mysql || cd $GITHUB_WORKSPACE
-          mvn clean package -DskipTests
+        run: mvn clean package -DskipTests
 
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
