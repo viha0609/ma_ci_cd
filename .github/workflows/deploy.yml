@@ -33,7 +33,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t viha06/connecting-mysql-spring-app:latest ./connecting-mysql
+          docker build -t viha06/connecting-mysql-spring-app:latest .
           docker push viha06/connecting-mysql-spring-app:latest
 
       - name: Set up Kubernetes
@@ -41,13 +41,21 @@ jobs:
         with:
           version: 'latest'
 
+      - name: Create Kubeconfig Directory
+        run: mkdir -p $HOME/.kube
+
+
       - name: Configure Kubeconfig
         run: |
           echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
       - name: Deploy to Kubernetes
-        run: kubectl apply -f k8s/
+        run: |
+          kubectl apply -f k8s/mysql-deployment.yaml --validate=false
+          kubectl apply -f k8s/mysql-pv-new.yaml
+          kubectl apply -f k8s/mysql-pvc-new.yaml
+          kubectl apply -f k8s/spring-app-deployment.yaml
 
       - name: Restart Deployment
         run: kubectl rollout restart deployment/spring-app
