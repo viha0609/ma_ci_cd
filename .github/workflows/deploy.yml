@@ -48,6 +48,15 @@ jobs:
       - name: Create Kubeconfig Directory
         run: mkdir -p $HOME/.kube
 
+      - name: Set up Kind
+        uses: kind-action/setup-kind@v1
+        with:
+          version: v0.11.1  # Specify the Kind version you want to use
+
+      - name: Create Kind Cluster
+        run: |
+         kind create cluster --name kind-lab-cluster
+          kubectl cluster-info
 
       - name: Configure Kubeconfig
         run: |
