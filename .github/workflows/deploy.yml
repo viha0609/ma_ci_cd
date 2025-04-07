@@ -71,10 +71,8 @@ jobs:
 
       - name: Apply MySQL Deployment Non-Fatal
         run: |
-          kubectl apply -f k8s/mysql-deployment.yaml --validate=false || echo "Warning: Apply failed, skipping for now"
-
-      - name: Apply MySQL Service
-        run: kubectl apply -f k8s/mysql-service.yaml --validate=false
+          kubectl apply -f k8s .
+      
 
       - name: Apply Spring App Deployment
         run: |
