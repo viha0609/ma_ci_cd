@@ -29,11 +29,13 @@ jobs:
           distribution: 'temurin'
           java-version: '23'
 
-      - name: Install Kind (v0.20.0)
+      - name: Install Kind v0.20.0
         run: |
-          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
-          chmod +x ./kind
-          sudo mv ./kind /usr/local/bin/kind
+          curl -Lo kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+          chmod +x kind
+          sudo mv kind /usr/local/bin/kind
+          kind version
+
           
       - name: Build JAR file with Correct Directory
         run: mvn clean package -DskipTests
@@ -53,9 +55,6 @@ jobs:
 
       - name: Create Kubeconfig Directory
         run: mkdir -p $HOME/.kube
-
-      - name: Set up Kind
-        uses: engineerd/setup-kind@v0.5.0
 
       - name: Create Kind Cluster
         run: |
