@@ -49,9 +49,7 @@ jobs:
         run: mkdir -p $HOME/.kube
 
       - name: Set up Kind
-        uses: kind-action/setup-kind@v1
-        with:
-          version: v0.11.1  # Specify the Kind version you want to use
+        uses: engineerd/setup-kind@v0.5.0
 
       - name: Create Kind Cluster
         run: |
