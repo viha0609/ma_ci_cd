@@ -70,10 +70,10 @@ jobs:
           kubectl get nodes
 
       - name: Apply MySQL Deployment
-        run: |
-          kubectl apply -f k8s/mysql-deployment.yaml --validate=false
-          kubectl apply -f k8s/mysql-pv-new.yaml
-          kubectl apply -f k8s/mysql-pvc-new.yaml
+        run: kubectl apply -f k8s/mysql-deployment.yaml --validate=false
+
+      - name: Apply MySQL Service
+        run: kubectl apply -f k8s/mysql-service.yaml --validate=false
 
       - name: Apply Spring App Deployment
         run: |
