@@ -71,7 +71,8 @@ jobs:
 
       - name: Apply MySQL Deployment Non-Fatal
         run: |
-          kubectl apply -f k8s .
+          kubectl apply -f k8s . || echo "⚠️ Some manifests failed to apply, continuing anyway"
+
       
 
       - name: Apply Spring App Deployment
