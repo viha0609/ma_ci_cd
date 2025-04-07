@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main  # Runs the pipeline when code is pushed to the main branch
+      - main
 
 jobs:
   build-and-deploy:
@@ -13,8 +13,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Ensure the full repository is fetched
-          submodules: true  # Fetch submodules if any
+          fetch-depth: 0
+          submodules: true
 
       - name: Debug Directory and Fix Working Directory
         run: |
@@ -22,7 +22,7 @@ jobs:
           ls -lah
           cd connecting-mysql || cd $GITHUB_WORKSPACE
           ls -lah
-          
+
       - name: Set up Java 23
         uses: actions/setup-java@v3
         with:
@@ -36,7 +36,6 @@ jobs:
           sudo mv kind /usr/local/bin/kind
           kind version
 
-          
       - name: Build JAR file with Correct Directory
         run: mvn clean package -DskipTests
 
@@ -53,25 +52,34 @@ jobs:
         with:
           version: 'latest'
 
-      - name: Create Kubeconfig Directory
-        run: mkdir -p $HOME/.kube
-
       - name: Create Kind Cluster
         run: |
-         kind create cluster --name kind-lab-cluster
-          kubectl cluster-info
+          kind create cluster --name kind-lab-cluster --wait 300s
 
-      - name: Configure Kubeconfig
+      - name: Wait for Cluster to be Ready
         run: |
-          echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
+          for i in {1..30}; do
+            kubectl get nodes && break
+            echo "Waiting for cluster..."
+            sleep 5
+          done
 
-      - name: Deploy to Kubernetes
+      - name: Debug Cluster Info
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+
+      - name: Apply MySQL Deployment
         run: |
           kubectl apply -f k8s/mysql-deployment.yaml --validate=false
           kubectl apply -f k8s/mysql-pv-new.yaml
           kubectl apply -f k8s/mysql-pvc-new.yaml
+
+      - name: Apply Spring App Deployment
+        run: |
           kubectl apply -f k8s/spring-app-deployment.yaml
 
-      - name: Restart Deployment
-        run: kubectl rollout restart deployment/spring-app
+      - name: Restart Spring Deployment
+        run: |
+          kubectl rollout restart deployment/spring-app
+
